@@ -15,6 +15,7 @@ const App = defineComponent({
         this.counter += 1
     }
   },
+  template: `<button type="button" @click="onClick">{{ $data.counter }}</button>`
 });
 
 const app = createApp(App);
