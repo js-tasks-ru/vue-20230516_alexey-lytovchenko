@@ -21,7 +21,7 @@ const App = defineComponent({
     return {
       firstInput: null,
       secondInput: null,
-      operator: null
+      operator: 'multiply'
     };
   },
   methods: {

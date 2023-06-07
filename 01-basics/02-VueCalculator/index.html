@@ -35,10 +35,10 @@
         </div>
 
         <div class="col" style="display: flex; flex-direction: column; font-family: emoji">
-          <label><input type="radio" name="operator" value="sum" @click="onSelectOperator" /> ➕</label>
-          <label><input type="radio" name="operator" value="subtract" @click="onSelectOperator" /> ➖</label>
-          <label><input type="radio" name="operator" value="multiply" @click="onSelectOperator" /> ✖</label>
-          <label><input type="radio" name="operator" value="divide" @click="onSelectOperator" /> ➗</label>
+          <label><input v-model="operator" type="radio" name="operator" value="sum" @click="onSelectOperator" /> ➕</label>
+          <label><input v-model="operator" type="radio" name="operator" value="subtract" @click="onSelectOperator" /> ➖</label>
+          <label><input v-model="operator" type="radio" name="operator" value="multiply" @click="onSelectOperator" /> ✖</label>
+          <label><input v-model="operator" type="radio" name="operator" value="divide" @click="onSelectOperator" /> ➗</label>
         </div>
 
         <div class="col">
