@@ -8,7 +8,7 @@
     <div id="app">
       <div>
         <span v-for="(item, index) in 5" >
-          <label><input  v-model="meetupId" type="radio" name="meetupId" :value="item" @change="onSelectMeetup" /> {{ item }}</label>
+          <label><input  v-model="meetupId" type="radio" name="meetupId" :value="item" /> {{ item }}</label>
         </span>
 
         <hr />

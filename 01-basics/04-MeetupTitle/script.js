@@ -32,13 +32,7 @@ const App = defineComponent({
       meetupId: null,
       title: ''
     };
-  },
-
-  methods: {
-    onSelectMeetup($event) {
-      this.meetupId = $event.target.value
-    }
-  },
+  }
 });
 
 const app = createApp(App);

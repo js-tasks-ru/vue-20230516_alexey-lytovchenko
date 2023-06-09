@@ -23,12 +23,7 @@ const App = defineComponent({
       secondInput: null,
       operator: 'multiply'
     };
-  },
-  methods: {
-    onSelectOperator($event) {
-      this.operator = $event.target.value;
-    },
-  },
+  }
 });
 
 const app = createApp(App);
