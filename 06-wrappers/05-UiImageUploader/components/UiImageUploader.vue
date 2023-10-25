@@ -1,8 +1,23 @@
 <template>
   <div class="image-uploader">
-    <label class="image-uploader__preview image-uploader__preview-loading" style="--bg-url: url('/link.jpeg')">
-      <span class="image-uploader__text">Загрузить изображение</span>
-      <input type="file" accept="image/*" class="image-uploader__input" />
+    <label
+      class="image-uploader__preview"
+      :class="{'image-uploader__preview-loading': loading}"
+      :style="urlImg && {'--bg-url': 'url(' + urlImg + ')'}"
+      @[eventnamelabel].prevent="removeImg"
+    >
+      <span
+        class="image-uploader__text"
+      >
+        {{ textInElement }}
+      </span>
+      <input
+        v-bind="$attrs"
+        type="file"
+        accept="image/*"
+        class="image-uploader__input"
+        @[eventnameinput]="previewFiles"
+      />
     </label>
   </div>
 </template>
@@ -10,6 +25,65 @@
 <script>
 export default {
   name: 'UiImageUploader',
+  props: {
+    preview: {
+      type: String,
+      required: false,
+    },
+    uploader: {
+      type: Function,
+      required: false,
+    }
+  },
+  inheritAttrs: false,
+  emits: ['select', 'upload', 'error', 'remove'],
+  data() {
+    return {
+      loading: false,
+      urlImg: this.preview,
+    }
+  },
+  computed: {
+    eventnameinput() {
+      return this.urlImg ? null : 'change'
+    },
+    eventnamelabel() {
+      return this.urlImg && !this.loading ? 'click' : null
+    },
+    textInElement() {
+      if (this.loading) return 'Загрузка...'
+      if (this.urlImg) return 'Удалить изображение'
+      return 'Загрузить изображение'
+    },
+  },
+  methods: {
+    async previewFiles(event) {
+      if (!event.currentTarget.files.length) return;
+      let file = event.currentTarget.files[0]
+      this.$emit('select', file)
+      this.urlImg = URL.createObjectURL(file)
+
+      if(this.uploader) {
+        this.loading = true
+        this.uploader(file).then((response) => {
+          this.$emit('upload', response)
+          this.urlImg = response.image
+        }).catch((error) => {
+            this.$emit('error', error)
+            this.urlImg = ''
+          }
+        ).finally(() => {
+          this.loading = false
+        })
+      }
+      event.target.value = null;
+    },
+    removeImg() {
+      this.urlImg = ''
+      this.$emit('remove')
+    }
+  }
+
 };
 </script>
 
