@@ -1,43 +1,4 @@
-<template>
-  <div class="panes">
-    <!--  Pane 0 -->
-    <div class="pane">
-      <div class="pane__content">
-        <!-- Определяем, какой именно слот рендерить по массиву порядка панелей -->
-        <slot :name="`pane-${panes[0]}`" />
-      </div>
-      <div class="pane__controls">
-        <!-- Скрываем кнопку классом pane__disabled-button -->
-        <UiButton class="pane__disabled-button" variant="secondary" block @click="up(0)"> Up </UiButton>
-        <UiButton variant="danger" block @click="down(0)"> Down </UiButton>
-      </div>
-    </div>
-    <!--  Pane 1 -->
-    <div class="pane">
-      <div class="pane__content">
-        <slot :name="`pane-${panes[1]}`" />
-      </div>
-      <div class="pane__controls">
-        <UiButton variant="secondary" block @click="up(1)"> Up </UiButton>
-        <UiButton variant="danger" block @click="down(1)"> Down </UiButton>
-      </div>
-    </div>
-    <!--  Pane 2 -->
-    <div class="pane">
-      <div class="pane__content">
-        <slot :name="`pane-${panes[2]}`" />
-      </div>
-      <div class="pane__controls">
-        <UiButton variant="secondary" block @click="up(2)"> Up </UiButton>
-        <UiButton class="pane__disabled-button" variant="danger" block @click="down(2)"> Down </UiButton>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script lang="jsx">
-// Предлагается решать задачу с использованием JSX, но вы можете использовать и чистые рендер-функции
-
 import UiButton from './UiButton.vue';
 
 export default {
@@ -50,13 +11,21 @@ export default {
   data() {
     return {
       /**
-       * Массив с текущим порядком номеров моделей, например
-       * [0, 1, 2]
+       * Массив с текущим порядком номеров моделей
        * @type {number[]|null}
        */
-      panes: [0, 1, 2],
-      // Сейчас здесь массив ровно из трёх элементов, но решение должно быть универсальным для любого количества узлов
+      panes: null,
     };
+  },
+
+  created() {
+    const slotsLength = Object.keys(this.$slots).length
+    if (slotsLength !== this.panes?.length) {
+      this.panes = [...new Array(slotsLength).keys()]
+    }
+    if (!!this.$slots.default && slotsLength === 1) {
+      this.panes = [...new Array(this.$slots.default().length).keys()]
+    }
   },
 
   methods: {
@@ -82,6 +51,74 @@ export default {
       this.panes[i + 1] = temp;
     },
   },
+  render() {
+    const buttons = [
+      {
+        name: 'Up',
+        id: 0,
+        variant: 'secondary',
+        method: (idx) => this.up(idx)
+      },
+      {
+        name: 'Down',
+        id: 1,
+        variant: 'danger',
+        method: (idx) => this.down(idx)
+      },
+    ]
+    const slotsLength = Object.keys(this.$slots).length
+    const isShowButton = (index, buttonsName) => {
+      const arr = slotsLength > 1 ? slotsLength : this.$slots.default().length
+      return index === 0 && buttonsName === buttons[0].name ||
+        (index === arr - 1) && buttonsName === buttons[1].name
+    }
+
+    const controls = (idx) => {
+      return <div className="pane__controls">
+        {buttons.map(button =>
+          <UiButton
+            data-item={idx}
+            variant={button.variant}
+            block
+            class={isShowButton(idx, button.name) && 'pane__disabled-button'}
+            onClick={() => button.method(idx)}
+          >
+            {button.name}
+          </UiButton>
+        )}
+      </div>
+    }
+    const contents = () => {
+      if (this.$slots.default && slotsLength >= 1) {
+        const vNodes = this.$slots.default()
+        return (this.panes).map((item, idx) => {
+          return (
+            <div className="pane">
+              <div className="pane__content">
+                {vNodes[item]}
+              </div>
+              {controls(idx)}
+            </div>
+          )
+        })
+      } else {
+        return (
+          this.panes.map((item, idx) =>
+            <div className="pane">
+              <div className="pane__content">
+                {Object.values(this.$slots)[item]()}
+              </div>
+              {controls(idx)}
+            </div>
+          ))
+      }
+    }
+    return (
+      <div className="panes">
+        {contents()}
+      </div>
+    )
+  }
 };
 </script>
 

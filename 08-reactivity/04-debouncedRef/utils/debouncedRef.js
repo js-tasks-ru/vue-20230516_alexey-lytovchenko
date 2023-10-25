@@ -1,5 +1,4 @@
 import { ref, watch } from 'vue';
-import debounce from 'lodash/debounce';
 
 /**
  * @template T
@@ -7,8 +6,20 @@ import debounce from 'lodash/debounce';
  * @param {number} wait - Ожидание в миллисекундах для debounce
  * @returns {Ref<T>} - Новый ref, обновляющийся с debounce при обновлении исходного ref-а
  */
+
+let timer = null
+
 export function debouncedRef(source, wait) {
-  const debounced = ref(undefined); // ...
-  // ...
-  return debounced;
+	const debounced = ref(undefined);
+	debounced.value = source.value
+
+	watch(source, (nV) => {
+		if (timer) clearTimeout(timer)
+		timer = setTimeout(() => {
+			debounced.value = nV
+		}, wait)
+
+	 }, )
+
+	return debounced;
 }

@@ -1,7 +1,7 @@
 <script lang="jsx">
 // Предлагается решать задачу с использованием JSX, но вы можете использовать и чистые рендер-функции
 
-// import UiTab from './UiTab.vue';
+import UiTab from './UiTab.vue';
 
 export default {
   name: 'UiTabs',
@@ -19,18 +19,34 @@ export default {
   },
 
   render() {
+    const nav = this.$slots.default().map(vnod => {
+      const isActive = vnod.props.name === this.active
+      const classArr = ["tabs__tab", isActive ? "tabs__tab_active" : ""]
+      return (
+        <UiTab name={vnod.props.name} title={vnod.props.title}>
+          <a
+            className={classArr.join(" ")}
+            role="tab"
+            onClick={() => this.setActive(vnod.props.name)}
+          >
+            {vnod.props.title}
+          </a>
+        </UiTab>
+      )
+    })
+    const content = this.$slots.default().map(vnod => {
+      if (vnod.props.name === this.active) {
+        return <div className="tabs__content">{vnod}</div>
+      }
+    })
     return (
-      <div class="tabs">
-        <div class="tabs__nav" role="tablist">
-          <a class="tabs__tab" role="tab">Tab</a>
-          <a class="tabs__tab tabs__tab_active" role="tab">Active Tab</a>
-          <a class="tabs__tab" role="tab">Tab</a>
+      <div className="tabs">
+        <div className="tabs__nav" role="tablist">
+          {nav}
         </div>
-        <div class="tabs__content">
-          ACTIVE TAB CONTENT
-        </div>
+        {content}
       </div>
-    );
+    )
   },
 };
 </script>
