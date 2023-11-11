@@ -1,8 +1,10 @@
 <template>
   <div class="pagination-container">
-    <template v-for="item in itemsPerPage" :key="item.id">
-      <slot :item="item" />
-    </template>
+    <slot
+      :item="item"
+      v-for="item in itemsPerPage"
+      :key="item.id"
+    />
   </div>
 </template>
 
@@ -28,8 +30,8 @@ export default {
       required: true,
     },
   },
-  computed:{
-    itemsPerPage(){
+  computed: {
+    itemsPerPage() {
       const start = (this.page - 1) * this.perPage;
       const end = start + this.perPage;
       return this.items.slice(start, end);

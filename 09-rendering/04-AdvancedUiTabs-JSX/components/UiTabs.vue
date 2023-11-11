@@ -19,13 +19,12 @@ export default {
   },
 
   render() {
-    const nav = this.$slots.default().map(vnod => {
+    const navigation = this.$slots.default().map(vnod => {
       const isActive = vnod.props.name === this.active
-      const classArr = ["tabs__tab", isActive ? "tabs__tab_active" : ""]
       return (
         <UiTab name={vnod.props.name} title={vnod.props.title}>
           <a
-            className={classArr.join(" ")}
+            class={["tabs__tab", { "tabs__tab_active": isActive }]}
             role="tab"
             onClick={() => this.setActive(vnod.props.name)}
           >
@@ -34,15 +33,13 @@ export default {
         </UiTab>
       )
     })
-    const content = this.$slots.default().map(vnod => {
-      if (vnod.props.name === this.active) {
-        return <div className="tabs__content">{vnod}</div>
-      }
-    })
+    const content = <div className="tabs__content">{
+      this.$slots.default().find(vnod => vnod.props.name === this.active)
+    }</div>
     return (
       <div className="tabs">
         <div className="tabs__nav" role="tablist">
-          {nav}
+          {navigation}
         </div>
         {content}
       </div>
@@ -57,8 +54,7 @@ export default {
   margin: 0;
 }
 
-.tabs__content {
-}
+.tabs__content {}
 
 .tabs__nav {
   display: flex;
