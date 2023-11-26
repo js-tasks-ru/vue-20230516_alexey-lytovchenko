@@ -1,16 +1,18 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import { isAuthenticated } from '../services/authService.js';
+import {createRouter, createWebHistory} from 'vue-router';
+import {isAuthenticated} from '../services/authService.js';
 
 const router = createRouter({
   history: createWebHistory('/05-vue-router/05-AuthGuard'),
   routes: [
     {
       path: '/',
+      name: 'index',
       alias: '/meetups',
       component: () => import('../views/PageMeetups.vue'),
     },
     {
       path: '/login',
+      name: 'login',
       meta: {
         requireGuest: true,
       },
@@ -18,6 +20,7 @@ const router = createRouter({
     },
     {
       path: '/register',
+      name: 'register',
       meta: {
         requireGuest: true,
       },
@@ -25,6 +28,7 @@ const router = createRouter({
     },
     {
       path: '/meetups/create',
+      name: 'create',
       meta: {
         requireAuth: true,
       },
@@ -32,6 +36,7 @@ const router = createRouter({
     },
     {
       path: '/meetups/:meetupId(\\d+)/edit',
+      name: 'edit',
       meta: {
         requireAuth: true,
       },
@@ -39,5 +44,18 @@ const router = createRouter({
     },
   ],
 });
+router.beforeEach((to, from) => {
 
-export { router };
+  if (!to.meta) return true
+  if (isAuthenticated()) {
+    if (to.meta.requireGuest) return { path: '/' }
+    if (to.meta.requireAuth) return true
+  }
+  if (!isAuthenticated()) {
+    if (to.meta.requireGuest) return true
+    if (to.meta.requireAuth) return { name: 'login', query: {from: to.path} }
+  }
+
+
+})
+export {router};

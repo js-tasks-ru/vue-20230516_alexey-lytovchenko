@@ -1,7 +1,7 @@
 <script lang="jsx">
 // Предлагается решать задачу с использованием JSX, но вы можете использовать и чистые рендер-функции
 
-// import UiTab from './UiTab.vue';
+import UiTab from './UiTab.vue';
 
 export default {
   name: 'UiTabs',
@@ -19,18 +19,31 @@ export default {
   },
 
   render() {
+    const navigation = this.$slots.default().map(vnod => {
+      const isActive = vnod.props.name === this.active
+      return (
+        <UiTab name={vnod.props.name} title={vnod.props.title}>
+          <a
+            class={["tabs__tab", { "tabs__tab_active": isActive }]}
+            role="tab"
+            onClick={() => this.setActive(vnod.props.name)}
+          >
+            {vnod.props.title}
+          </a>
+        </UiTab>
+      )
+    })
+    const content = <div className="tabs__content">{
+      this.$slots.default().find(vnod => vnod.props.name === this.active)
+    }</div>
     return (
-      <div class="tabs">
-        <div class="tabs__nav" role="tablist">
-          <a class="tabs__tab" role="tab">Tab</a>
-          <a class="tabs__tab tabs__tab_active" role="tab">Active Tab</a>
-          <a class="tabs__tab" role="tab">Tab</a>
+      <div className="tabs">
+        <div className="tabs__nav" role="tablist">
+          {navigation}
         </div>
-        <div class="tabs__content">
-          ACTIVE TAB CONTENT
-        </div>
+        {content}
       </div>
-    );
+    )
   },
 };
 </script>
@@ -41,8 +54,7 @@ export default {
   margin: 0;
 }
 
-.tabs__content {
-}
+.tabs__content {}
 
 .tabs__nav {
   display: flex;

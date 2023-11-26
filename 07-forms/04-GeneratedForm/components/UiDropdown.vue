@@ -101,10 +101,12 @@ export default {
 .dropdown {
   position: relative;
   display: inline-block;
+  width: 100%;
 }
 
 .dropdown__toggle {
-  display: inline-block;
+  width: 100%;
+  display: inline-flex;
   background-color: var(--white);
   background-position: calc(100% - 10px) calc(100% - 10px);
   border: 2px solid var(--blue-light);

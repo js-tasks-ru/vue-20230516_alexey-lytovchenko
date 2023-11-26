@@ -1,10 +1,14 @@
 <template>
   <div class="pagination-container">
-    <!-- Контент страницы -->
+    <slot
+      :item="item"
+      v-for="item in itemsPerPage"
+      :key="item.id"
+    />
   </div>
 </template>
 
-<script>
+<script lang="jsx">
 export default {
   name: 'UiPaginationView',
 
@@ -26,7 +30,12 @@ export default {
       required: true,
     },
   },
+  computed: {
+    itemsPerPage() {
+      const start = (this.page - 1) * this.perPage;
+      const end = start + this.perPage;
+      return this.items.slice(start, end);
+    }
+  }
 };
 </script>
-
-<style></style>

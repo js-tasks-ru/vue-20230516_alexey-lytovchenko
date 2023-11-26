@@ -1,37 +1,82 @@
 <template>
   <fieldset class="agenda-item-form">
-    <button type="button" class="agenda-item-form__remove-button">
-      <UiIcon icon="trash" />
+    <button
+      type="button"
+      class="agenda-item-form__remove-button"
+      @click="$emit('remove')"
+    >
+      <UiIcon icon="trash"/>
     </button>
 
     <UiFormGroup>
-      <UiDropdown title="Тип" :options="$options.agendaItemTypeOptions" name="type" />
+      <UiDropdown
+        title="Тип"
+        name="type"
+        v-model="localAgendaItem.type"
+        :options="$options.agendaItemTypeOptions"
+      />
     </UiFormGroup>
 
     <div class="agenda-item-form__row">
       <div class="agenda-item-form__col">
         <UiFormGroup label="Начало">
-          <UiInput type="time" placeholder="00:00" name="startsAt" />
+          <UiInput
+            type="time"
+            placeholder="00:00"
+            name="startsAt"
+            v-model="localAgendaItem.startsAt"
+          />
         </UiFormGroup>
       </div>
       <div class="agenda-item-form__col">
         <UiFormGroup label="Окончание">
-          <UiInput type="time" placeholder="00:00" name="endsAt" />
+          <UiInput
+            type="time"
+            placeholder="00:00"
+            name="endsAt"
+            v-model="localAgendaItem.endsAt"
+          />
         </UiFormGroup>
       </div>
     </div>
 
-    <UiFormGroup label="Тема">
-      <UiInput name="title" />
+    <UiFormGroup
+      :label=fieldSet.title
+    >
+      <UiInput
+        name="title"
+        v-model="localAgendaItem.title"
+      />
     </UiFormGroup>
-    <UiFormGroup label="Докладчик">
-      <UiInput name="speaker" />
+    <UiFormGroup
+      v-if="fieldSet.speaker"
+      :label=fieldSet.speaker
+    >
+      <UiInput
+        name="speaker"
+        v-model="localAgendaItem.speaker"
+      />
     </UiFormGroup>
-    <UiFormGroup label="Описание">
-      <UiInput multiline name="description" />
+    <UiFormGroup
+      v-if="fieldSet.description"
+      :label=fieldSet.description
+    >
+      <UiInput
+        multiline
+        name="description"
+        v-model="localAgendaItem.description"
+      />
     </UiFormGroup>
-    <UiFormGroup label="Язык">
-      <UiDropdown title="Язык" :options="$options.talkLanguageOptions" name="language" />
+    <UiFormGroup
+      v-if="fieldSet.language"
+      :label="fieldSet.language"
+    >
+      <UiDropdown
+        title="Язык"
+        v-model="localAgendaItem.language"
+        :options="$options.talkLanguageOptions"
+        name="language"
+      />
     </UiFormGroup>
   </fieldset>
 </template>
@@ -71,9 +116,9 @@ const agendaItemTypeOptions = Object.entries(agendaItemDefaultTitles).map(([type
 }));
 
 const talkLanguageOptions = [
-  { value: null, text: 'Не указано' },
-  { value: 'RU', text: 'RU' },
-  { value: 'EN', text: 'EN' },
+  {value: null, text: 'Не указано'},
+  {value: 'RU', text: 'RU'},
+  {value: 'EN', text: 'EN'},
 ];
 
 export default {
@@ -82,7 +127,7 @@ export default {
   agendaItemTypeOptions,
   talkLanguageOptions,
 
-  components: { UiIcon, UiFormGroup, UiInput, UiDropdown },
+  components: {UiIcon, UiFormGroup, UiInput, UiDropdown},
 
   props: {
     agendaItem: {
@@ -90,7 +135,67 @@ export default {
       required: true,
     },
   },
-};
+  emits: ['update:agendaItem', 'remove'],
+  data() {
+    return {
+      localAgendaItem: {...this.agendaItem},
+    }
+  },
+  watch: {
+    localAgendaItem: {
+      deep: true,
+      handler(newValue) {
+        this.$emit('update:agendaItem', {...newValue})
+      },
+    },
+    'localAgendaItem.startsAt'(newValue, oldValue) {
+      const newMinStartAt = this.getMinutesFromTime(newValue)
+      const oldMinStartAt = this.getMinutesFromTime(oldValue)
+      const minEndAt = this.getMinutesFromTime(this.localAgendaItem.endsAt)
+      const oldDeltaTimeAt = minEndAt - oldMinStartAt
+
+      let newDeltaTime = newMinStartAt + oldDeltaTimeAt
+      if (Math.sign(newDeltaTime) < 0) {
+        newDeltaTime = newDeltaTime + 1440
+      }
+      this.localAgendaItem.endsAt = this.getTimeFromMinutes(newDeltaTime)
+    },
+  },
+  computed: {
+    fieldSet() {
+      if (this.localAgendaItem.type === 'talk') {
+        return {
+          title: 'Тема',
+          speaker: 'Докладчик',
+          description: 'Описание',
+          language: 'Язык',
+        }
+
+      } else if (this.localAgendaItem.type === 'other') {
+        return {
+          title: 'Заголовок',
+          description: 'Описание'
+        }
+      } else {
+        return {
+          title: 'Нестандартный текст (необязательно)'
+        }
+      }
+    }
+  },
+  methods: {
+    getMinutesFromTime(time) {
+      const arrTime = time.split(':')
+      return arrTime[0] * 60 + +arrTime[1]
+    },
+    getTimeFromMinutes(mins) {
+      if (mins > 1400) mins -= 1440
+      const hours = String(Math.trunc(mins / 60))
+      const minutes = String(mins % 60)
+      return hours.padStart(2, '0') + ':' + minutes.padStart(2, '0')
+    }
+  },
+}
 </script>
 
 <style scoped>

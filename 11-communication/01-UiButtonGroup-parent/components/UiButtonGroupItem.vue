@@ -1,5 +1,13 @@
 <template>
-  <button class="button-group__button button-group__button_active" type="button" aria-selected="false">Button</button>
+  <button
+    class="button-group__button"
+    :class="{ 'button-group__button_active': $parent.$props.modelValue === value }"
+    type="button"
+    aria-selected="false"
+    @click="$parent.$emit('update:modelValue', value)"
+  >
+    <slot />
+  </button>
 </template>
 
 <script>
@@ -10,6 +18,11 @@ export default {
     value: {
       required: true,
     },
+  },
+  mounted() {
+    if (this.$parent.$options.name !== 'UiButtonGroup') {
+      console.warn('ERROR! Parent component should only be "UiButtonGroup"');
+    }
   },
 };
 </script>
